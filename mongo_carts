@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: carts-db
+spec:
+  selector:
+    matchLabels:
+      app: carts-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: carts-db
+    spec:
+      containers:
+      - name: carts-db
+        image: mongo:latest
+        volumeMounts:
+        - name: mongo-volume
+          mountPath: /data
+      volumes:
+       - name: mongo-volume
+         hostPath:
+           path: /mnt/mongo-volume
+           type: DirectoryOrCreate
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: carts-db
+spec:
+  selector:
+    app: carts-db
+  ports:
+  - protocol: TCP
+    port: 27017
+  type: ClusterIP
