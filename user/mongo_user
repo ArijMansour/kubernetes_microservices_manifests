@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-db
+spec:
+  selector:
+    matchLabels:
+      app: user-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: user-db
+    spec:
+      containers:
+      - name: user-db
+        image: arijmansour/pfe_user-db_microservice:latest
+        volumeMounts:
+        - name: mongo-volume
+          mountPath: /data
+      volumes:
+       - name: mongo-volume
+         hostPath:
+           path: /mnt/mongo-volume
+           type: DirectoryOrCreate
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: user-db
+spec:
+  selector:
+    app: user-db
+  ports:
+  - protocol: TCP
+    port: 27017
+  type: ClusterIP

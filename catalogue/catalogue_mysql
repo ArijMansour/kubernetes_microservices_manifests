@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalogue-db
+spec:
+  selector:
+    matchLabels:
+      app: catalogue-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: catalogue-db
+    spec:
+      containers:
+      - name: catalogue-db
+        image: arijmansour/pfe_catalogue-db_microservice:latest
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: fake_password
+          - name: MYSQL_DATABASE
+            value: socksdb
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: catalogue-db
+spec:
+  selector:
+    app: catalogue-db
+  ports:
+  - port: 3306
+    targetPort: 3306
