@@ -1,0 +1,12 @@
+piVersion: v1
+kind: Service
+metadata:
+  name: nginx-service-nodeport
+spec:
+  type: NodePort 
+  selector:
+    app: queue
+  ports:
+    - protocol: TCP
+      port: 80
+      nodePort: 30094

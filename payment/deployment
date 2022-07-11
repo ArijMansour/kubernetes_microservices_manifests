@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payement
+  labels:
+    app: payement
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payement
+  template:
+    metadata:
+      labels:
+        app: payement
+    spec:
+      containers:
+        - name: payement
+          image: 'arijmansour/pfe_payement_microservice:latest'
+          ports:
+            - containerPort: 80
