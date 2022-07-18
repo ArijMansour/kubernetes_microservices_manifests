@@ -1,0 +1,12 @@
+https://computingforgeeks.com/install-grafana-on-kubernetes-for-monitoring/
+https://computingforgeeks.com/install-prometheus-server-on-debian-ubuntu-linux/
+https://blog.marcnuri.com/prometheus-grafana-setup-minikube
+
+15055 : monitor pod cpu and memory usage 
+6417: kubernetes 
+12740: kubernetes monitoring dashboard 
+15759 : Kubernetes / Views / Nodes
+5309 : kubernetes Capacity 
+
+
+erreur : helm upgrade -i prometheus prometheus-community/prometheus 
