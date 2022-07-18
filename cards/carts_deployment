@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: carts
-          image: 'arijmansour/pfe-carts-microservices:latest'
+          image: 'arijmansour/pfe_carts_microservices:latest'
           ports:
             - containerPort: 80
 

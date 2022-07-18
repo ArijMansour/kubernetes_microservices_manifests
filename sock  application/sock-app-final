@@ -1,0 +1,565 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: carts
+  labels:
+    app: carts
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: carts
+  template:
+    metadata:
+      labels:
+        app: carts
+    spec:
+      containers:
+        - name: carts
+          image: 'arijmansour/pfe_carts_microservices:latest'
+          ports:
+            - containerPort: 80
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: carts-db
+spec:
+  selector:
+    matchLabels:
+      app: carts-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: carts-db
+    spec:
+      containers:
+      - name: carts-db
+        image: mongo:latest
+        volumeMounts:
+        - name: mongo-volume
+          mountPath: /data
+        ports:
+        - containerPort: 27017
+      volumes:
+       - name: mongo-volume
+         hostPath:
+           path: /mnt/mongo-volume
+           type: DirectoryOrCreate
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: carts-db
+spec:
+  selector:
+    app: carts-db
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: carts
+  annotations:
+       prometheus.io/scrape: 'true'
+spec:
+  selector:
+    app: carts
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalogue
+  labels:
+    app: catalogue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalogue
+  template:
+    metadata:
+      labels:
+        app: catalogue
+    spec:
+      containers:
+        - name: catalogue
+          image: 'arijmansour/pfe_catalogue_microservice:latest'
+          ports:
+            - containerPort: 80
+            
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalogue-db
+spec:
+  selector:
+    matchLabels:
+      app: catalogue-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: catalogue-db
+    spec:
+      containers:
+      - name: catalogue-db
+        image: arijmansour/pfe_catalogue-db_microservice:latest
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: fake_password
+          - name: MYSQL_DATABASE
+            value: socksdb
+        ports:
+        - containerPort: 3306
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: catalogue-db
+spec:
+  selector:
+    app: catalogue-db
+  ports:
+  - port: 3306
+    targetPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalogue
+  annotations:
+       prometheus.io/scrape: 'true'
+spec: 
+  selector:
+    app: catalogue
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80      
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: front-end
+  labels:
+    app: front-end
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: front-end
+  template:
+    metadata:
+      labels:
+        app: front-end
+    spec:
+      containers:
+        - name: front-end
+          image: 'arijmansour/pfe_front_microservice:latest'
+          ports:
+          - containerPort: 8079
+          env:
+          - name: SESSION_REDIS
+            value: "true"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: front-end
+  annotations:
+       prometheus.io/scrape: 'true'
+spec:
+  type: NodePort
+  selector:
+    app: front-end
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8079
+      nodePort: 30002
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders
+  labels:
+    app: orders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders
+  template:
+    metadata:
+      labels:
+        app: orders
+    spec:
+      containers:
+        - name: orders
+          image: 'arijmansour/pfe_orders_microservices:latest'
+          ports:
+            - containerPort: 80
+            
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-db
+spec:
+  selector:
+    matchLabels:
+      app: orders-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: orders-db
+    spec:
+      containers:
+      - name: orders-db
+        image: mongo:latest
+        volumeMounts:
+        - name: mongo-volume
+          mountPath: /data
+        ports:
+        - containerPort: 27017
+      volumes:
+       - name: mongo-volume
+         hostPath:
+           path: /mnt/mongo-volume
+           type: DirectoryOrCreate
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: orders-db
+spec:
+  selector:
+    app: orders-db
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017
+  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders
+  annotations:
+       prometheus.io/scrape: 'true'
+spec: 
+  selector:
+    app: orders
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    name: orders
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payement
+  labels:
+    app: payement
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payement
+  template:
+    metadata:
+      labels:
+        app: payement
+    spec:
+      containers:
+        - name: payement
+          image: 'arijmansour/pfe_payement_microservice:latest'
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payement
+  annotations:
+       prometheus.io/scrape: 'true'
+spec: 
+  selector:
+    app: payement
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue
+  labels:
+    app: queue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: queue  
+  template:
+    metadata:
+      labels:
+        app: queue  
+    spec:
+      containers:
+        - name: queue  
+          image: 'arijmansour/pfe_queue_microservices:latest'
+          ports:
+            - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+spec:
+  selector:
+    matchLabels:
+      app: rabbitmq
+  replicas: 1
+  
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+      annotations:
+        prometheus.io/scrape: 'true'
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq
+        ports:
+        - containerPort: 5672
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  annotations:
+       prometheus.io/scrape: 'true'
+       prometheus.io/port: '9090'
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+  - protocol: TCP
+    port: 5672
+    targetPort: 5672
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: queue
+  annotations:
+       prometheus.io/scrape: 'true'
+spec: 
+  selector:
+    app: queue
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipping
+  labels:
+    app: shipping
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shipping
+  template:
+    metadata:
+      labels:
+        app: shipping
+    spec:
+      containers:
+        - name: carts
+          image: 'arijmansour/pfe_shipping_microservices:latest'
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shipping
+  annotations:
+       prometheus.io/scrape: 'true'
+spec: 
+  selector:
+    app: shipping
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+  labels:
+    app: user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - name: user
+          image: 'arijmansour/pfe_user_microservice:latest'
+          ports:
+            - containerPort: 80
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-db
+spec:
+  selector:
+    matchLabels:
+      app: user-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: user-db
+    spec:
+      containers:
+      - name: user-db
+        image: arijmansour/pfe_user-db_microservice:latest
+        volumeMounts:
+        - name: mongo-volume
+          mountPath: /data
+        ports:
+        - containerPort: 27017
+      volumes:
+       - name: mongo-volume
+         hostPath:
+           path: /mnt/mongo-volume
+           type: DirectoryOrCreate
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: user-db
+spec:
+  selector:
+    app: user-db
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017
+  
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: user
+  annotations:
+       prometheus.io/scrape: 'true'
+spec: 
+  selector:
+    app: user
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: session-db
+  labels:
+    name: session-db
+  #namespace: sock-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: session-db
+  template:
+    metadata:
+      labels:
+        name: session-db
+      annotations:
+        prometheus.io.scrape: "false"
+    spec:
+      containers:
+      - name: session-db
+        image: redis:alpine
+        ports:
+        - name: redis
+          containerPort: 6379
+        securityContext:
+          capabilities:
+            drop:
+              - all
+            add:
+              - CHOWN
+              - SETGID
+              - SETUID
+          readOnlyRootFilesystem: true
+      nodeSelector:
+          kubernetes.io/os: linux
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: session-db
+  labels:
+    name: session-db
+  #namespace: sock-shop
+spec:
+  ports:
+    # the port that this service should serve on
+  - port: 6379
+    targetPort: 6379
+  selector:
+    name: session-db
+---
